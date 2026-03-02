@@ -3,51 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivid Vocab Vault v4.6 - Final Edition</title>
+    <title>Vivid Vocab Vault v4.7 - Mobile Optimized</title>
     <style>
         :root { --primary: #764ba2; --secondary: #667eea; --bg: #f8f9fa; --text: #333; --accent: #d63031; }
+        
+        /* 기본 레이아웃: PC 우선 */
         body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text); overflow: hidden; }
         
         /* 사이드바 */
         #sidebar { width: 260px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
         #sidebar h2 { color: var(--primary); font-size: 1.4rem; margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
-        .main-cat { font-weight: bold; padding: 12px; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #f1f3f9; color: #444; margin-bottom: 10px; transition: 0.2s; }
+        .main-cat { font-weight: bold; padding: 12px; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #f1f3f9; color: #444; margin-bottom: 10px; }
         .sub-cat-container { padding-left: 15px; display: none; border-left: 2px solid #eee; margin-left: 10px; }
         .sub-cat-container.active { display: block; }
-        .sub-item { padding: 8px 12px; cursor: pointer; font-size: 0.85rem; border-radius: 5px; color: #666; margin: 3px 0; transition: 0.2s; }
-        .sub-item:hover { background: #f0f0ff; color: var(--primary); font-weight: bold; }
+        .sub-item { padding: 8px 12px; cursor: pointer; font-size: 0.85rem; border-radius: 5px; color: #666; margin: 3px 0; }
         
         /* 메인 콘텐츠 */
-        #main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        #smart-input-area { background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border-top: 6px solid var(--primary); }
+        #main-content { flex: 1; padding: 30px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        #smart-input-area { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border-top: 6px solid var(--primary); }
         
-        /* 가이드 박스 핵심 수정 */
-        .guide-box { background: #f8f9ff; border: 1px solid #e0e4ff; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-        .guide-flex { display: flex; gap: 20px; }
+        .guide-box { background: #f8f9ff; border: 1px solid #e0e4ff; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .guide-flex { display: flex; gap: 15px; }
         .guide-col { flex: 1; }
-        .guide-title { font-weight: bold; color: var(--primary); font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-        .guide-text { font-size: 0.8rem; color: #555; line-height: 1.5; margin-bottom: 8px; }
-        .format-code { background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 8px; font-size: 0.75rem; color: #444; font-family: monospace; line-height: 1.4; }
-        .warning { color: var(--accent); font-weight: bold; font-size: 0.75rem; margin-top: 5px; }
+        .guide-title { font-weight: bold; color: var(--primary); font-size: 0.9rem; margin-bottom: 8px; }
+        .format-code { background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 8px; font-size: 0.7rem; color: #444; font-family: monospace; line-height: 1.4; }
         
-        textarea { width: 100%; height: 140px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 0.95rem; margin-top: 15px; resize: vertical; border-left: 5px solid var(--secondary); }
-        button#add-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 1.1rem; }
+        textarea { width: 100%; height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 0.95rem; margin-top: 10px; border-left: 5px solid var(--secondary); }
+        button#add-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 1rem; }
 
-        /* 카드 그리드 */
+        /* 카드 그리드: PC는 3열, 화면 작아지면 자동 조절 */
         #card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { height: 460px; perspective: 1000px; cursor: pointer; position: relative; }
+        .card { height: 440px; perspective: 1000px; cursor: pointer; position: relative; width: 100%; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .card.flipped .card-inner { transform: rotateY(180deg); }
-        .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; padding: 25px; box-sizing: border-box; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; padding: 20px; box-sizing: border-box; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
         .front { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .back { background: white; transform: rotateY(180deg); overflow-y: auto; border: 1px solid #eee; }
         
-        .delete-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.25); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; z-index: 100; }
-        .section-title { font-size: 0.7rem; font-weight: bold; color: var(--primary); margin-top: 12px; border-left: 3px solid var(--primary); padding-left: 8px; text-transform: uppercase; }
+        .delete-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.25); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; z-index: 10; }
+        .section-title { font-size: 0.7rem; font-weight: bold; color: var(--primary); margin-top: 10px; border-left: 3px solid var(--primary); padding-left: 8px; text-transform: uppercase; }
         .content { font-size: 0.85rem; margin: 4px 0; line-height: 1.4; color: #444; }
         .vivid-box { background: #f1f3f9; padding: 10px; border-radius: 8px; font-style: italic; border-left: 4px solid var(--secondary); margin-top: 8px; font-size: 0.85rem; }
-        .syn-ant-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; background: #fdfdfd; padding: 10px; border-radius: 8px; border: 1px dashed #ccd0ff; }
+        .syn-ant-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; background: #fdfdfd; padding: 8px; border-radius: 8px; border: 1px dashed #ccd0ff; }
         .btn-util { width: 100%; padding: 10px; margin-top: 8px; font-size: 0.8rem; cursor: pointer; border-radius: 6px; border: 1px solid #ddd; background: #fff; }
+
+        /* 🔥 모바일용 핵심 쿼리 🔥 */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; height: auto; }
+            #sidebar { width: 100%; border-right: none; border-bottom: 1px solid #ddd; height: auto; padding: 15px; box-sizing: border-box; }
+            #main-content { padding: 15px; overflow-y: visible; }
+            .guide-flex { flex-direction: column; }
+            .guide-col { border-right: none !important; padding-right: 0 !important; margin-bottom: 10px; }
+            #card-grid { grid-template-columns: 1fr; } /* 모바일은 무조건 1열 */
+            .card { height: 400px; } /* 모바일에서 카드 높이 살짝 조절 */
+        }
     </style>
 </head>
 <body>
@@ -55,11 +64,11 @@
         <h2>📂 My Vault</h2>
         <div class="main-cat" onclick="renderCards('all')" style="background:var(--primary); color:white; justify-content: center;">전체 단어 보기</div>
         <div id="category-tree"></div>
-        <div style="margin-top:auto; padding-top:20px;">
-            <button class="btn-util" onclick="exportData()">💾 백업 파일 저장</button>
-            <button class="btn-util" onclick="document.getElementById('import-file').click()">📂 데이터 불러오기</button>
+        <div style="margin-top:20px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+            <button class="btn-util" onclick="exportData()">💾 백업</button>
+            <button class="btn-util" onclick="document.getElementById('import-file').click()">📂 불러오기</button>
             <input type="file" id="import-file" style="display:none" onchange="importData(event)">
-            <button class="btn-util" style="color:#ff4d4d; border:none; opacity:0.6" onclick="clearData()">전체 데이터 초기화</button>
+            <button class="btn-util" style="grid-column: span 2; color:#ff4d4d; border:none; opacity:0.6" onclick="clearData()">전체 데이터 초기화</button>
         </div>
     </nav>
 
@@ -67,33 +76,26 @@
         <section id="smart-input-area">
             <div class="guide-box">
                 <div class="guide-flex">
-                    <div class="guide-col" style="border-right: 1px solid #e0e4ff; padding-right: 20px;">
-                        <div class="guide-title">🤖 1단계: Gemini에게 요청하기</div>
-                        <div class="guide-text">아래 버튼을 눌러 프롬프트를 복사한 뒤 <b>Gemini</b>에 붙여넣어 단어를 생성하세요.</div>
-                        <button onclick="copyUniversalPrompt()" style="width:100%; padding:12px; background:var(--secondary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.2s;">
-                            📋 암기 최적화 프롬프트 복사
+                    <div class="guide-col" style="border-right: 1px solid #e0e4ff; padding-right: 15px;">
+                        <div class="guide-title">🤖 Gemini 요청</div>
+                        <button onclick="copyUniversalPrompt()" style="width:100%; padding:10px; background:var(--secondary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.8rem;">
+                            📋 프롬프트 복사
                         </button>
                     </div>
                     <div class="guide-col">
-                        <div class="guide-title">⚠️ 2단계: 데이터 형식 확인</div>
-                        <div class="guide-text">Gemini의 답변을 붙여넣을 때 아래 <b>띄어쓰기</b>를 확인하세요.</div>
-                        <div class="format-code">
-                            단어 [발음] : 뜻<br>
-                            주제: 대분류 > 중분류<br>
-                            ...항목들...<br>
-                            <span style="color:var(--primary)">(반드시 한 줄 띄우고 다음 단어 시작)</span>
-                        </div>
-                        <div class="warning">※ 단어와 단어 사이에는 반드시 빈 줄이 있어야 합니다!</div>
+                        <div class="guide-title">⚠️ 데이터 주의</div>
+                        <div class="format-code">단어 [발음] : 뜻<br>...항목들...<br><span style="color:var(--primary)">(빈 줄 필수)</span></div>
                     </div>
                 </div>
             </div>
-            <textarea id="raw-input" placeholder="Gemini가 생성한 데이터를 이곳에 붙여넣으세요..."></textarea>
-            <button id="add-btn" onclick="parseAndAdd()">지능형 카드 생성 & 내 금고 저장</button>
+            <textarea id="raw-input" placeholder="Gemini 답변 붙여넣기..."></textarea>
+            <button id="add-btn" onclick="parseAndAdd()">지능형 카드 생성</button>
         </section>
         <div id="card-grid"></div>
     </main>
 
     <script>
+        // JS 로직은 동일하게 유지 (모바일 환경에 맞춰 일부 최적화)
         let vocaData = JSON.parse(localStorage.getItem('voca_v5_hierarchy')) || [];
 
         function speak(text) {
@@ -104,22 +106,9 @@
         }
 
         function copyUniversalPrompt() {
-            const promptText = `학습하고 싶은 [원하는 분야]와 관련된 영어 단어 10개를 알려줘. 
-
-반드시 아래 형식을 엄격히 지켜줘:
-1. '단어 [발음] : 뜻' (예: Succumb [səˈkʌm] : 굴복하다)
-2. 주제: 대분류 > 중분류 (예: 경제 > 거시경제)
-3. 어원: 핵심 어원 설명
-4. 소리: 단어 발음과 비슷한 한국어를 이용한 유치하고 강렬한 암기 연상법 (발음 설명은 하지 마)
-5. 문장: 실전 예문
-6. 유의어: 단어들 / 반의어: 단어들
-
-주의사항:
-- 각 항목 사이에는 빈 줄을 넣지 말 것.
-- 반드시 단어와 단어 사이에만 빈 줄을 한 칸 넣을 것.
-- 불필요한 서론이나 결론 없이 데이터만 출력할 것.`;
+            const promptText = `학습하고 싶은 [분야] 관련 영어 단어 10개를 알려줘. \n\n반드시 아래 형식을 엄격히 지켜줘:\n1. '단어 [발음] : 뜻' (예: Succumb [səˈkʌm] : 굴복하다)\n2. 주제: 대분류 > 중분류\n3. 어원: 핵심 어원 설명\n4. 소리: 한국어를 이용한 유치하고 강렬한 암기 연상법 (발음 설명 금지)\n5. 문장: 실전 예문\n6. 유의어: 단어들 / 반의어: 단어들\n\n주의: 단어와 단어 사이에만 빈 줄을 한 칸 넣을 것.`;
             navigator.clipboard.writeText(promptText);
-            alert("프롬프트가 복사되었습니다! 이제 Gemini에게 가서 붙여넣으세요.");
+            alert("프롬프트 복사 완료!");
         }
 
         function saveAndRender() {
@@ -134,7 +123,6 @@
             let count = 0;
             blocks.forEach(block => {
                 const lines = block.trim().split('\n').map(l => l.trim());
-                if (lines.length < 2) return;
                 const headerMatch = lines[0].match(/^([A-Za-z\s\-]+)\s*\[(.*?)\]\s*:\s*(.*)/);
                 if (headerMatch) {
                     const getField = (label) => {
@@ -152,7 +140,7 @@
             });
             saveAndRender();
             document.getElementById('raw-input').value = '';
-            if(count > 0) alert(`${count}개의 카드가 성공적으로 생성되었습니다!`);
+            if(count > 0) alert(`${count}개 생성 완료!`);
         }
 
         function renderCards(filterType = 'all', filterVal = '') {
@@ -190,7 +178,7 @@
                 el.className = 'card';
                 el.innerHTML = `
                     <div class="card-inner">
-                        <button class="delete-btn" onclick="event.stopPropagation(); if(confirm('삭제하시겠습니까?')){vocaData=vocaData.filter(c=>c.id!==${card.id}); saveAndRender();}">✕</button>
+                        <button class="delete-btn" onclick="event.stopPropagation(); if(confirm('삭제?')){vocaData=vocaData.filter(c=>c.id!==${card.id}); saveAndRender();}">✕</button>
                         <div class="front" onclick="this.parentElement.parentElement.classList.toggle('flipped'); speak('${card.word}')">
                             <div style="font-size:0.65rem; opacity:0.8; margin-bottom:8px;">${card.topic}</div>
                             <h1 style="font-size:1.8rem; margin:0;">${card.word}</h1>
@@ -199,8 +187,8 @@
                         </div>
                         <div class="back" onclick="this.parentElement.parentElement.classList.toggle('flipped')">
                             <div class="section-title">Etymology</div><div class="content">${card.etym}</div>
-                            <div class="section-title">Memory Link (Mnemonic)</div><div class="content" style="color:var(--accent); font-weight:600;">${card.sound}</div>
-                            <div class="section-title">Example Sentence</div><div class="vivid-box">${card.example}</div>
+                            <div class="section-title">Mnemonic</div><div class="content" style="color:var(--accent); font-weight:600;">${card.sound}</div>
+                            <div class="section-title">Sentence</div><div class="vivid-box">${card.example}</div>
                             <div class="syn-ant-row">
                                 <div><div style="color:#2ecc71; font-weight:bold; font-size:0.65rem;">Synonyms</div><div class="content" style="font-size:0.7rem;">${card.syn}</div></div>
                                 <div><div style="color:#e74c3c; font-weight:bold; font-size:0.65rem;">Antonyms</div><div class="content" style="font-size:0.7rem;">${card.ant}</div></div>
@@ -217,14 +205,14 @@
         }
         function exportData() {
             const blob = new Blob([JSON.stringify(vocaData, null, 2)], {type: "application/json"});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `vocab_vault_export.json`; a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `voca_vault.json`; a.click();
         }
         function importData(event) {
             const reader = new FileReader();
             reader.onload = (e) => { vocaData = [...vocaData, ...JSON.parse(e.target.result)]; saveAndRender(); };
             reader.readAsText(event.target.files[0]);
         }
-        function clearData() { if(confirm("모든 데이터를 삭제할까요?")) { vocaData = []; saveAndRender(); } }
+        function clearData() { if(confirm("전체 삭제?")) { vocaData = []; saveAndRender(); } }
         renderCards();
     </script>
 </body>
