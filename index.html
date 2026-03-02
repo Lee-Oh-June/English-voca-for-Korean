@@ -2,53 +2,58 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Vivid Vocab Vault - Audio Enhanced</title>
+    <title>Vivid Vocab Vault - v3.9.8 Pro</title>
     <style>
-        :root { --primary: #764ba2; --secondary: #667eea; --bg: #f8f9fa; }
+        :root { --primary: #764ba2; --secondary: #667eea; --bg: #f8f9fa; --accent: #e74c3c; }
         body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); }
         
-        #sidebar { width: 220px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; }
-        .menu-item { cursor: pointer; padding: 10px; border-radius: 5px; margin: 5px 0; font-size: 0.9rem; transition: 0.2s; }
-        .menu-item:hover { background: #eee; border-left: 4px solid var(--primary); }
+        /* 사이드바 및 검색 */
+        #sidebar { width: 240px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; }
+        #search-bar { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; outline: none; border-left: 4px solid var(--secondary); }
+        .menu-item { cursor: pointer; padding: 10px; border-radius: 5px; margin: 5px 0; font-size: 0.85rem; transition: 0.2s; color: #444; }
+        .menu-item:hover { background: #f0f2f5; border-left: 4px solid var(--primary); }
         .btn-util { width: 100%; padding: 8px; margin-top: 5px; font-size: 0.75rem; cursor: pointer; border-radius: 5px; border: 1px solid #ddd; background: #fff; }
 
+        /* 메인 영역 */
         #main-content { flex: 1; padding: 30px; overflow-y: auto; }
         #smart-input-area { background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 5px solid var(--primary); }
         
         .guide-box { background: #f8f9ff; border: 1px solid #e0e4ff; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .guide-title { font-size: 0.9rem; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        .guide-text { font-size: 0.8rem; color: #666; margin: 8px 0; line-height: 1.5; }
-        .format-code { background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 5px; font-size: 0.75rem; color: #444; font-family: monospace; white-space: pre-line; }
+        .guide-title { font-size: 0.9rem; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; }
         
         textarea { width: 100%; height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; margin-top: 10px; }
         button#add-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 1rem; }
         
+        /* 카드 디자인 */
         #card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
-        .card { height: 480px; perspective: 1000px; cursor: pointer; position: relative; }
+        .card { height: 520px; perspective: 1000px; cursor: pointer; position: relative; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .card.flipped .card-inner { transform: rotateY(180deg); }
         .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; padding: 25px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         .front { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .back { background: white; transform: rotateY(180deg); overflow-y: auto; text-align: left; border: 1px solid #eee; }
         
+        /* 빨간색 Mnemonic 복구 */
+        .mnemonic-section { color: var(--accent); font-weight: bold; border: 1px dashed var(--accent); padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.85rem; }
+        
         .delete-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; z-index: 100; }
         .delete-btn:hover { background: #ff4d4d; }
-        .card.flipped .delete-btn { display: none; }
 
-        .section-title { font-size: 0.75rem; font-weight: bold; color: var(--primary); margin-top: 12px; border-left: 3px solid var(--primary); padding-left: 7px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-size: 0.75rem; font-weight: bold; color: var(--primary); margin-top: 12px; border-left: 3px solid var(--primary); padding-left: 7px; text-transform: uppercase; }
         .content { font-size: 0.85rem; margin: 4px 0; line-height: 1.4; color: #333; }
-        .vivid-box { background: #f0f2f5; padding: 12px; border-radius: 8px; font-style: italic; border-left: 4px solid var(--secondary); margin-top: 8px; font-size: 0.85rem; position: relative; }
         
-        /* 문장 읽기 스피커 버튼 */
-        .speak-sentence-btn { cursor: pointer; font-size: 1rem; color: var(--secondary); margin-left: 5px; transition: 0.2s; }
-        .speak-sentence-btn:hover { transform: scale(1.2); }
-
+        /* 예문 및 번역 */
+        .vivid-box { background: #f0f2f5; padding: 12px; border-radius: 8px; font-style: italic; border-left: 4px solid var(--secondary); margin-top: 8px; font-size: 0.85rem; color: #2c3e50; }
+        .translation-box { font-size: 0.8rem; color: #7f8c8d; margin-top: 5px; padding-left: 5px; border-left: 2px solid #ddd; }
+        
+        .speak-btn { cursor: pointer; font-size: 1rem; color: var(--secondary); margin-left: 5px; }
         .syn-ant-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; background: #fdfdfd; padding: 8px; border-radius: 8px; border: 1px dashed #ddd; }
     </style>
 </head>
 <body>
     <nav id="sidebar">
         <h2>📂 My Vault</h2>
+        <input type="text" id="search-bar" placeholder="단어 또는 뜻 검색..." onkeyup="searchWords()">
         <div class="menu-item" onclick="renderCards('all')">모든 단어 보기</div>
         <div id="category-list" style="margin-bottom: 20px;"></div>
         <hr style="width:100%; border:0; border-top:1px solid #eee;">
@@ -62,10 +67,10 @@
         <section id="smart-input-area">
             <div class="guide-box">
                 <div class="guide-title">
-                    <span>💡 단어 추가 양식</span>
+                    <span>💡 단어 추가 양식 (번역 포함)</span>
                     <button onclick="fillSample()" style="background:var(--secondary); color:white; border:none; border-radius:4px; font-size:0.7rem; padding:4px 8px; cursor:pointer;">샘플 넣기</button>
                 </div>
-                <div class="guide-text">Gemini가 생성한 결과를 아래에 붙여넣으세요. 카드 뒷면에서 문장 듣기(🔊)가 가능합니다.</div>
+                <div class="guide-text">예문 밑에 '번역: 내용'을 넣으면 번역 섹션이 생성됩니다.</div>
             </div>
             <textarea id="raw-input" placeholder="여기에 양식에 맞춘 단어 데이터를 붙여넣으세요..."></textarea>
             <button id="add-btn" onclick="parseAndAdd()">지능형 카드 생성 & 저장</button>
@@ -80,18 +85,24 @@
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            utterance.rate = isFast ? 1.0 : 0.85; // 문장은 조금 더 자연스러운 속도로
+            utterance.rate = isFast ? 1.0 : 0.85;
             window.speechSynthesis.speak(utterance);
         }
 
+        function searchWords() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            renderCards('all', query);
+        }
+
         function fillSample() {
-            const sample = `Sustainability [səˌsteɪnəˈbɪləti] : 지속 가능성
-주제: 환경
-어원: Sus(아래에서) + tain(잡다). 아래에서 위를 튼튼하게 받쳐서 계속 유지함.
-소리: 서스(Sus/소스) + 테인(tain/타인). "이 소스(Sus)는 타인(tain)에게도 줄 수 있을 만큼 양이 넉넉하고 지속 가능해!"
-문장: The sustainability of green growth is a core value of GGGI.
-유의어: Viability, Endurance, Feasibility
-반의어: Depletion, Fragility`;
+            const sample = `Implementation [ˌɪmplɪmenˈteɪʃn] : 이행, 실행
+주제: 전략
+어원: Im(안에) + ple(채우다). 계획의 빈틈을 행동으로 채움.
+소리: 임플(Impl) + 테이션. 계획만 하던 교정을 '임플란트'로 실제 '실행'함!
+문장: The implementation of green policies remains a challenge.
+번역: 녹색 정책의 이행은 여전히 과제로 남아 있다.
+유의어: Execution, Application
+반의어: Inaction, Failure`;
             document.getElementById('raw-input').value = sample;
         }
 
@@ -103,120 +114,113 @@
             }
         }
 
-        function exportData() {
-            if(vocaData.length === 0) return alert("저장된 단어가 없습니다.");
-            const dataStr = JSON.stringify(vocaData, null, 2);
-            const blob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `vocab_backup.json`;
-            a.click();
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    vocaData = [...vocaData, ...imported];
-                    saveAndRender();
-                    alert("데이터를 성공적으로 불러왔습니다.");
-                } catch(e) { alert("파일 형식이 잘못되었습니다."); }
-            };
-            reader.readAsText(file);
-        }
-
-        function clearData() {
-            if(confirm("모든 데이터를 영구 삭제하시겠습니까?")) {
-                vocaData = [];
-                saveAndRender();
-            }
-        }
-
         function saveAndRender() {
             localStorage.setItem('voca_v4_pro', JSON.stringify(vocaData));
             renderCards();
         }
 
-        function parseAndAdd() {
+        async function parseAndAdd() {
             const raw = document.getElementById('raw-input').value.trim();
             if(!raw) return;
             const blocks = raw.split(/\n\s*\n/);
-            let addedCount = 0;
-
-            blocks.forEach(block => {
+            
+            for (let block of blocks) {
                 const lines = block.trim().split('\n');
-                if (lines.length < 2) return;
+                if (lines.length < 2) continue;
                 const headerMatch = lines[0].match(/([A-Za-z\s\-]+)\s*\[(.*?)\]\s*:\s*(.*)/);
                 
-                const topic = block.match(/주제:\s*(.*)/)?.[1] || "일반";
-                const etym = block.match(/어원:\s*([\s\S]*?)(?=소리:|$)/)?.[1] || "";
-                const sound = block.match(/소리:\s*([\s\S]*?)(?=문장:|$)/)?.[1] || "";
-                const example = block.match(/문장:\s*([\s\S]*?)(?=유의어:|$)/)?.[1] || "";
-                const synonyms = block.match(/유의어:\s*(.*)/)?.[1] || "N/A";
-                const antonyms = block.match(/반의어:\s*(.*)/)?.[1] || "N/A";
-
                 if (headerMatch) {
+                    const newWord = headerMatch[1].trim();
+                    const existingIndex = vocaData.findIndex(item => item.word.toLowerCase() === newWord.toLowerCase());
+
+                    if (existingIndex !== -1) {
+                        const choice = confirm(`'${newWord}'은(는) 이미 존재합니다.\n[확인]: 기존 카드 덮어쓰기\n[취소]: 새로 추가하기 (중복 허용)`);
+                        if (choice) {
+                            vocaData.splice(existingIndex, 1); // 기존 것 삭제 후 아래에서 새로 추가
+                        }
+                    }
+
+                    const topic = block.match(/주제:\s*(.*)/)?.[1] || "일반";
+                    const etym = block.match(/어원:\s*([\s\S]*?)(?=소리:|$)/)?.[1] || "";
+                    const sound = block.match(/소리:\s*([\s\S]*?)(?=문장:|$)/)?.[1] || "";
+                    const example = block.match(/문장:\s*([\s\S]*?)(?=번역:|유의어:|$)/)?.[1] || "";
+                    const translation = block.match(/번역:\s*([\s\S]*?)(?=유의어:|$)/)?.[1] || "";
+                    const synonyms = block.match(/유의어:\s*(.*)/)?.[1] || "N/A";
+                    const antonyms = block.match(/반의어:\s*(.*)/)?.[1] || "N/A";
+
                     vocaData.push({
                         id: Date.now() + Math.random(),
-                        word: headerMatch[1].trim(),
+                        word: newWord,
                         pron: headerMatch[2].trim(),
                         mean: headerMatch[3].trim(),
                         topic: topic.trim(), etym: etym.trim(), sound: sound.trim(),
-                        example: example.trim(), syn: synonyms.trim(), ant: antonyms.trim(),
-                        date: new Date().toLocaleDateString()
+                        example: example.trim(), translation: translation.trim(),
+                        syn: synonyms.trim(), ant: antonyms.trim()
                     });
-                    addedCount++;
                 }
-            });
+            }
             saveAndRender();
             document.getElementById('raw-input').value = '';
-            if(addedCount > 0) alert(`${addedCount}개의 카드가 금고에 저장되었습니다!`);
         }
 
-        function renderCards(filter = 'all') {
+        function renderCards(filter = 'all', query = '') {
             const grid = document.getElementById('card-grid');
             const catList = document.getElementById('category-list');
             grid.innerHTML = '';
             const categories = [...new Set(vocaData.map(d => d.topic))];
             catList.innerHTML = categories.map(c => `<div class="menu-item" onclick="renderCards('${c}')">- ${c}</div>`).join('');
-            const filtered = (filter === 'all') ? vocaData : vocaData.filter(d => d.topic === filter);
+            
+            let filtered = (filter === 'all') ? vocaData : vocaData.filter(d => d.topic === filter);
+            if(query) {
+                filtered = filtered.filter(d => d.word.toLowerCase().includes(query) || d.mean.toLowerCase().includes(query));
+            }
 
             filtered.forEach(card => {
                 const el = document.createElement('div');
                 el.className = 'card';
-                // 문장만 정제 (괄호 안의 한국어 해석 제외하고 읽기 위해)
-                const cleanSentence = card.example.split('(')[0].trim();
-                
                 el.innerHTML = `
                     <div class="card-inner">
                         <button class="delete-btn" onclick="deleteCard(${card.id}, event)">✕</button>
                         <div class="front" onclick="this.parentElement.parentElement.classList.toggle('flipped'); speak('${card.word}')">
-                            <div style="font-size:0.75rem; opacity:0.8; margin-bottom:10px;">${card.topic}</div>
-                            <h1 style="font-size:2.1rem; margin:0;">${card.word}</h1>
-                            <p style="font-size:1rem; opacity:0.9;">${card.pron} 🔊</p>
-                            <div style="margin-top:20px; font-size:1.1rem; font-weight:bold; background:rgba(255,255,255,0.2); padding:8px 18px; border-radius:30px;">${card.mean}</div>
+                            <div style="font-size:0.7rem; opacity:0.8;">${card.topic}</div>
+                            <h1 style="font-size:2rem; margin:10px 0;">${card.word}</h1>
+                            <p>${card.pron} 🔊</p>
+                            <div style="margin-top:20px; font-weight:bold; background:rgba(255,255,255,0.2); padding:8px 15px; border-radius:30px;">${card.mean}</div>
                         </div>
                         <div class="back" onclick="this.parentElement.parentElement.classList.toggle('flipped')">
                             <div class="section-title">Etymology</div><div class="content">${card.etym}</div>
-                            <div class="section-title">Mnemonic</div><div class="content">${card.sound}</div>
-                            <div class="section-title">
-                                Vivid Sentence 
-                                <span class="speak-sentence-btn" onclick="event.stopPropagation(); speak('${cleanSentence.replace(/'/g, "\\'")}', true)">🔊</span>
-                            </div>
+                            <div class="section-title">Mnemonic</div><div class="mnemonic-section">${card.sound}</div>
+                            <div class="section-title">Example <span class="speak-btn" onclick="event.stopPropagation(); speak('${card.example.replace(/'/g, "\\'")}', true)">🔊</span></div>
                             <div class="vivid-box">${card.example}</div>
+                            ${card.translation ? `<div class="translation-box">${card.translation}</div>` : ''}
                             <div class="syn-ant-row">
-                                <div><div style="color:#2ecc71; font-weight:bold; font-size:0.7rem;">Synonyms</div><div class="content" style="font-size:0.75rem;">${card.syn}</div></div>
-                                <div><div style="color:#e74c3c; font-weight:bold; font-size:0.7rem;">Antonyms</div><div class="content" style="font-size:0.75rem;">${card.ant}</div></div>
+                                <div><div style="color:#2ecc71; font-weight:bold; font-size:0.65rem;">Synonyms</div><div class="content" style="font-size:0.75rem;">${card.syn}</div></div>
+                                <div><div style="color:#e74c3c; font-weight:bold; font-size:0.65rem;">Antonyms</div><div class="content" style="font-size:0.75rem;">${card.ant}</div></div>
                             </div>
                         </div>
                     </div>`;
                 grid.prepend(el);
             });
         }
+
+        // 초기화 및 백업 기능 유지
+        function exportData() {
+            const dataStr = JSON.stringify(vocaData, null, 2);
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `vocab_backup.json`; a.click();
+        }
+        function importData(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                vocaData = [...vocaData, ...JSON.parse(e.target.result)]; 
+                saveAndRender(); 
+            };
+            reader.readAsText(file);
+        }
+        function clearData() { if(confirm("초기화하시겠습니까?")) { vocaData = []; saveAndRender(); } }
         renderCards();
     </script>
 </body>
