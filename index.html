@@ -2,77 +2,99 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Vivid Vocab Vault - v3.9.8 Pro</title>
+    <title>Vivid Vocab Vault - v4.1.0 Compact</title>
     <style>
         :root { --primary: #764ba2; --secondary: #667eea; --bg: #f8f9fa; --accent: #e74c3c; }
-        body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); }
+        body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); overflow: hidden; }
         
-        /* 사이드바 및 검색 */
-        #sidebar { width: 240px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; }
-        #search-bar { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; outline: none; border-left: 4px solid var(--secondary); }
-        .menu-item { cursor: pointer; padding: 10px; border-radius: 5px; margin: 5px 0; font-size: 0.85rem; transition: 0.2s; color: #444; }
+        /* 사이드바 */
+        #sidebar { width: 240px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
+        #search-bar { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; border-left: 4px solid var(--secondary); outline: none; }
+        .menu-item { cursor: pointer; padding: 10px; border-radius: 5px; margin: 2px 0; font-size: 0.85rem; transition: 0.2s; color: #444; }
         .menu-item:hover { background: #f0f2f5; border-left: 4px solid var(--primary); }
         .btn-util { width: 100%; padding: 8px; margin-top: 5px; font-size: 0.75rem; cursor: pointer; border-radius: 5px; border: 1px solid #ddd; background: #fff; }
 
         /* 메인 영역 */
-        #main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        #smart-input-area { background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 5px solid var(--primary); }
+        #main-content { flex: 1; padding: 20px 30px; overflow-y: auto; }
         
-        .guide-box { background: #f8f9ff; border: 1px solid #e0e4ff; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .guide-title { font-size: 0.9rem; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; }
+        /* [개선] 접이식 가이드 영역 */
+        #smart-input-area { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 5px solid var(--primary); }
+        .guide-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--primary); font-weight: bold; font-size: 0.95rem; }
+        #guide-content { display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
         
-        textarea { width: 100%; height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; margin-top: 10px; }
-        button#add-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 1rem; }
+        .ai-prompt-zone { background: #f4f6ff; padding: 15px; border-radius: 8px; border: 1px solid #d0d7ff; position: relative; margin-bottom: 15px; }
+        .ai-prompt-zone code { font-size: 0.8rem; color: #2c3e50; line-height: 1.6; display: block; white-space: pre-wrap; font-family: 'Consolas', monospace; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: var(--primary); color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
+        .copy-btn:active { transform: scale(0.95); opacity: 0.8; }
+
+        textarea { width: 100%; height: 100px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; margin-top: 10px; outline: none; resize: vertical; }
+        button#add-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 8px; font-size: 0.95rem; }
         
         /* 카드 디자인 */
-        #card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
-        .card { height: 520px; perspective: 1000px; cursor: pointer; position: relative; }
+        #card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card { height: 480px; perspective: 1000px; cursor: pointer; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .card.flipped .card-inner { transform: rotateY(180deg); }
         .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; padding: 25px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         .front { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .back { background: white; transform: rotateY(180deg); overflow-y: auto; text-align: left; border: 1px solid #eee; }
+        .back { background: white; transform: rotateY(180deg); overflow-y: auto; border: 1px solid #eee; }
         
-        /* 빨간색 Mnemonic 복구 */
-        .mnemonic-section { color: var(--accent); font-weight: bold; border: 1px dashed var(--accent); padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.85rem; }
-        
+        .mnemonic-section { color: var(--accent); font-weight: bold; border: 1px dashed var(--accent); padding: 10px; border-radius: 8px; margin-top: 5px; font-size: 0.85rem; background: #fff5f5; }
         .delete-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; z-index: 100; }
-        .delete-btn:hover { background: #ff4d4d; }
-
-        .section-title { font-size: 0.75rem; font-weight: bold; color: var(--primary); margin-top: 12px; border-left: 3px solid var(--primary); padding-left: 7px; text-transform: uppercase; }
-        .content { font-size: 0.85rem; margin: 4px 0; line-height: 1.4; color: #333; }
-        
-        /* 예문 및 번역 */
-        .vivid-box { background: #f0f2f5; padding: 12px; border-radius: 8px; font-style: italic; border-left: 4px solid var(--secondary); margin-top: 8px; font-size: 0.85rem; color: #2c3e50; }
-        .translation-box { font-size: 0.8rem; color: #7f8c8d; margin-top: 5px; padding-left: 5px; border-left: 2px solid #ddd; }
-        
-        .speak-btn { cursor: pointer; font-size: 1rem; color: var(--secondary); margin-left: 5px; }
-        .syn-ant-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; background: #fdfdfd; padding: 8px; border-radius: 8px; border: 1px dashed #ddd; }
+        .section-title { font-size: 0.75rem; font-weight: bold; color: var(--primary); margin-top: 15px; border-left: 3px solid var(--primary); padding-left: 7px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+        .content { font-size: 0.85rem; margin: 5px 0; color: #333; line-height: 1.5; }
+        .vivid-box { background: #f0f2f5; padding: 10px; border-radius: 8px; font-style: italic; border-left: 4px solid var(--secondary); margin-top: 8px; font-size: 0.82rem; }
+        .translation-box { font-size: 0.78rem; color: #7f8c8d; margin-top: 5px; padding-left: 5px; border-left: 2px solid #ddd; }
+        .speak-btn { cursor: pointer; font-size: 0.9rem; color: var(--secondary); }
+        .syn-ant-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; background: #fdfdfd; padding: 8px; border-radius: 8px; border: 1px dashed #ddd; }
     </style>
 </head>
 <body>
     <nav id="sidebar">
-        <h2>📂 My Vault</h2>
-        <input type="text" id="search-bar" placeholder="단어 또는 뜻 검색..." onkeyup="searchWords()">
+        <h2 style="color: var(--primary); margin-bottom: 25px;">📂 Vocab Vault</h2>
+        <input type="text" id="search-bar" placeholder="단어/뜻 검색..." onkeyup="searchWords()">
         <div class="menu-item" onclick="renderCards('all')">모든 단어 보기</div>
-        <div id="category-list" style="margin-bottom: 20px;"></div>
-        <hr style="width:100%; border:0; border-top:1px solid #eee;">
-        <button class="btn-util" onclick="exportData()">💾 백업 파일 저장</button>
-        <button class="btn-util" onclick="document.getElementById('import-file').click()">📂 데이터 불러오기</button>
+        <div id="category-list" style="margin-bottom: 20px; overflow-y: auto; flex-grow: 1;"></div>
+        <hr style="width:100%; border:0; border-top:1px solid #eee; margin: 15px 0;">
+        <button class="btn-util" onclick="exportData()">💾 백업 저장</button>
+        <button class="btn-util" onclick="document.getElementById('import-file').click()">📂 불러오기</button>
         <input type="file" id="import-file" style="display:none" onchange="importData(event)">
-        <button class="btn-util" style="color:#ccc; margin-top:20px; font-size:0.6rem; border:none;" onclick="clearData()">전체 초기화</button>
+        <button class="btn-util" style="color:#ccc; margin-top:10px; font-size:0.6rem; border:none;" onclick="clearData()">전체 초기화</button>
     </nav>
 
     <main id="main-content">
         <section id="smart-input-area">
-            <div class="guide-box">
-                <div class="guide-title">
-                    <span>💡 단어 추가 양식 (번역 포함)</span>
-                    <button onclick="fillSample()" style="background:var(--secondary); color:white; border:none; border-radius:4px; font-size:0.7rem; padding:4px 8px; cursor:pointer;">샘플 넣기</button>
-                </div>
-                <div class="guide-text">예문 밑에 '번역: 내용'을 넣으면 번역 섹션이 생성됩니다.</div>
+            <div class="guide-toggle" onclick="toggleGuide()">
+                <span>🤖 Gemini AI 프롬프트 가이드 (클릭해서 열기)</span>
+                <span id="toggle-icon">▼</span>
             </div>
-            <textarea id="raw-input" placeholder="여기에 양식에 맞춘 단어 데이터를 붙여넣으세요..."></textarea>
+            
+            <div id="guide-content">
+                <div class="ai-prompt-zone">
+                    <button class="copy-btn" onclick="copyPrompt()">복사하기</button>
+                    <code id="target-prompt">**[여기에 주제 입력]**에 관한 **[여기에 수준 입력]**수준의 고급 영어 단어 **[여기에 개수 입력]**개를 아래 양식으로 출력해줘 (혹은, 목표하는 단어가 있는 경우 해당 단어를 직접 입력할 것)
+1. 소리 연상법은 한국어 발음을 이용해 매우 창의적이고 재미있게 만들 것.
+2. 상세 어원은 역사나 라틴어 유래를 포함해 깊이 있게 적을 것.
+3. 단어 사이엔 빈 줄을 하나씩 넣고, 다른 설명 없이 데이터만 출력해.
+
+[양식]
+단어 [발음] : 뜻
+주제: 카테고리
+어원: 상세 어원 내용
+소리: 소리 연상법 내용
+문장: 관련 예문 (영어)
+번역: 예문의 한국어 해석
+유의어: 단어1, 단어2
+반의어: 단어1, 단어2</code>
+                </div>
+                <div style="font-size: 0.75rem; color: #666; display: flex; gap: 10px;">
+                    <span>1. 복사 후 Gemini에서 주제만 바꿔 질문</span>
+                    <span>2. 결과값을 아래에 붙여넣기</span>
+                    <span onclick="fillSample()" style="color:var(--secondary); cursor:pointer; font-weight:bold;">[샘플 넣기]</span>
+                </div>
+            </div>
+
+            <textarea id="raw-input" placeholder="Gemini의 답변을 여기에 붙여넣으세요..."></textarea>
             <button id="add-btn" onclick="parseAndAdd()">지능형 카드 생성 & 저장</button>
         </section>
         <div id="card-grid"></div>
@@ -80,6 +102,34 @@
 
     <script>
         let vocaData = JSON.parse(localStorage.getItem('voca_v4_pro')) || [];
+
+        function toggleGuide() {
+            const content = document.getElementById('guide-content');
+            const icon = document.getElementById('toggle-icon');
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                icon.innerText = '▼';
+            } else {
+                content.style.display = 'block';
+                icon.innerText = '▲';
+            }
+        }
+
+        async function copyPrompt() {
+            const text = document.getElementById('target-prompt').innerText;
+            try {
+                await navigator.clipboard.writeText(text);
+                const btn = document.querySelector('.copy-btn');
+                btn.innerText = '복사됨!';
+                btn.style.background = '#2ecc71';
+                setTimeout(() => { 
+                    btn.innerText = '복사하기'; 
+                    btn.style.background = 'var(--primary)'; 
+                }, 2000);
+            } catch (err) {
+                alert('복사에 실패했습니다. 수동으로 복사해주세요.');
+            }
+        }
 
         function speak(text, isFast = false) {
             window.speechSynthesis.cancel();
@@ -95,20 +145,19 @@
         }
 
         function fillSample() {
-            const sample = `Implementation [ˌɪmplɪmenˈteɪʃn] : 이행, 실행
-주제: 전략
-어원: Im(안에) + ple(채우다). 계획의 빈틈을 행동으로 채움.
-소리: 임플(Impl) + 테이션. 계획만 하던 교정을 '임플란트'로 실제 '실행'함!
-문장: The implementation of green policies remains a challenge.
-번역: 녹색 정책의 이행은 여전히 과제로 남아 있다.
-유의어: Execution, Application
-반의어: Inaction, Failure`;
-            document.getElementById('raw-input').value = sample;
+            document.getElementById('raw-input').value = `Advocacy [ˈædvəkəsi] : 옹호, 지지
+주제: 정책
+어원: Ad(향하여) + vocare(부르다). 어떤 대의명분을 위해 목소리를 높여 부른다는 유래.
+소리: 애드(Ad/광고) + 보커시(보거라). "이 정책 광고(Ad) 좀 보거라!" 하며 옹호하는 모습.
+문장: The World Bank emphasizes the advocacy for global health equity.
+번역: 세계은행은 글로벌 건강 형평성에 대한 옹호를 강조합니다.
+유의어: Support, Endorsement
+반의어: Opposition, Criticism`;
         }
 
         function deleteCard(id, event) {
             event.stopPropagation(); 
-            if(confirm("이 단어 카드를 삭제할까요?")) {
+            if(confirm("삭제할까요?")) {
                 vocaData = vocaData.filter(card => card.id !== id);
                 saveAndRender();
             }
@@ -132,14 +181,11 @@
                 if (headerMatch) {
                     const newWord = headerMatch[1].trim();
                     const existingIndex = vocaData.findIndex(item => item.word.toLowerCase() === newWord.toLowerCase());
-
                     if (existingIndex !== -1) {
-                        const choice = confirm(`'${newWord}'은(는) 이미 존재합니다.\n[확인]: 기존 카드 덮어쓰기\n[취소]: 새로 추가하기 (중복 허용)`);
-                        if (choice) {
-                            vocaData.splice(existingIndex, 1); // 기존 것 삭제 후 아래에서 새로 추가
+                        if (confirm(`'${newWord}'이(가) 이미 존재합니다. 덮어쓸까요?`)) {
+                            vocaData.splice(existingIndex, 1);
                         }
                     }
-
                     const topic = block.match(/주제:\s*(.*)/)?.[1] || "일반";
                     const etym = block.match(/어원:\s*([\s\S]*?)(?=소리:|$)/)?.[1] || "";
                     const sound = block.match(/소리:\s*([\s\S]*?)(?=문장:|$)/)?.[1] || "";
@@ -150,9 +196,7 @@
 
                     vocaData.push({
                         id: Date.now() + Math.random(),
-                        word: newWord,
-                        pron: headerMatch[2].trim(),
-                        mean: headerMatch[3].trim(),
+                        word: newWord, pron: headerMatch[2].trim(), mean: headerMatch[3].trim(),
                         topic: topic.trim(), etym: etym.trim(), sound: sound.trim(),
                         example: example.trim(), translation: translation.trim(),
                         syn: synonyms.trim(), ant: antonyms.trim()
@@ -171,9 +215,7 @@
             catList.innerHTML = categories.map(c => `<div class="menu-item" onclick="renderCards('${c}')">- ${c}</div>`).join('');
             
             let filtered = (filter === 'all') ? vocaData : vocaData.filter(d => d.topic === filter);
-            if(query) {
-                filtered = filtered.filter(d => d.word.toLowerCase().includes(query) || d.mean.toLowerCase().includes(query));
-            }
+            if(query) filtered = filtered.filter(d => d.word.toLowerCase().includes(query) || d.mean.toLowerCase().includes(query));
 
             filtered.forEach(card => {
                 const el = document.createElement('div');
@@ -183,9 +225,9 @@
                         <button class="delete-btn" onclick="deleteCard(${card.id}, event)">✕</button>
                         <div class="front" onclick="this.parentElement.parentElement.classList.toggle('flipped'); speak('${card.word}')">
                             <div style="font-size:0.7rem; opacity:0.8;">${card.topic}</div>
-                            <h1 style="font-size:2rem; margin:10px 0;">${card.word}</h1>
-                            <p>${card.pron} 🔊</p>
-                            <div style="margin-top:20px; font-weight:bold; background:rgba(255,255,255,0.2); padding:8px 15px; border-radius:30px;">${card.mean}</div>
+                            <h1 style="font-size:1.8rem; margin:10px 0;">${card.word}</h1>
+                            <p style="font-size:0.9rem;">${card.pron} 🔊</p>
+                            <div style="margin-top:15px; font-weight:bold; background:rgba(255,255,255,0.2); padding:8px 15px; border-radius:30px; font-size:1rem;">${card.mean}</div>
                         </div>
                         <div class="back" onclick="this.parentElement.parentElement.classList.toggle('flipped')">
                             <div class="section-title">Etymology</div><div class="content">${card.etym}</div>
@@ -202,8 +244,7 @@
                 grid.prepend(el);
             });
         }
-
-        // 초기화 및 백업 기능 유지
+        
         function exportData() {
             const dataStr = JSON.stringify(vocaData, null, 2);
             const blob = new Blob([dataStr], {type: "application/json"});
@@ -214,10 +255,7 @@
         function importData(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
-            reader.onload = (e) => { 
-                vocaData = [...vocaData, ...JSON.parse(e.target.result)]; 
-                saveAndRender(); 
-            };
+            reader.onload = (e) => { vocaData = [...vocaData, ...JSON.parse(e.target.result)]; saveAndRender(); };
             reader.readAsText(file);
         }
         function clearData() { if(confirm("초기화하시겠습니까?")) { vocaData = []; saveAndRender(); } }
