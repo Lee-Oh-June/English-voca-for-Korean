@@ -3,82 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivid Vocab Vault - v4.6.1 Fixed Bottom</title>
+    <title>Vivid Vocab Vault - v4.7.0 Full Restoration</title>
     <style>
         :root { --primary: #764ba2; --secondary: #667eea; --bg: #f8f9fa; --accent: #e74c3c; --danger: #ff4757; }
         body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); overflow: hidden; }
         
         /* 사이드바 고정 구조 */
-        #sidebar { 
-            width: 260px; background: #fff; border-right: 1px solid #ddd; 
-            display: flex; flex-direction: column; flex-shrink: 0; 
-            height: 100vh; /* 전체 높이 고정 */
-        }
-        
-        .sidebar-header { padding: 20px 20px 10px 20px; }
-        
-        /* 카테고리 리스트 영역만 스크롤 */
-        #hierarchy-list-wrapper { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 0 20px;
-        }
-        /* 스크롤바 커스텀 */
-        #hierarchy-list-wrapper::-webkit-scrollbar { width: 5px; }
-        #hierarchy-list-wrapper::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+        #sidebar { width: 260px; background: #fff; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; height: 100vh; }
+        .sidebar-header { padding: 20px; }
+        #hierarchy-list-wrapper { flex: 1; overflow-y: auto; padding: 0 15px; }
+        .sidebar-footer { padding: 15px; border-top: 1px solid #eee; background: #fdfdfd; }
 
-        .sidebar-footer { 
-            padding: 15px 20px; 
-            border-top: 1px solid #eee; 
-            background: #fdfdfd; 
-        }
-
-        #search-bar { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; outline: none; }
-        .cat-group { margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #f0f0f0; }
-        .cat-main { cursor: pointer; padding: 12px; font-weight: bold; background: #fdfdfd; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
-        .cat-main.active { background: #f0edff; color: var(--primary); border-left: 4px solid var(--primary); }
-        .cat-sub-list { display: none; background: #fff; padding: 5px 0; }
+        /* 카테고리 스타일 */
+        .cat-group { margin-bottom: 5px; border-radius: 8px; border: 1px solid #f0f0f0; background: #fafafa; }
+        .cat-main-row { display: flex; align-items: center; padding: 10px; cursor: pointer; font-weight: bold; font-size: 0.85rem; justify-content: space-between; }
+        .cat-main-row:hover { background: #f0edff; }
+        .cat-sub-list { display: none; background: #fff; border-top: 1px solid #f0f0f0; }
         .cat-item-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #fafafa; }
-        .cat-sub { flex: 1; cursor: pointer; padding: 8px 15px; font-size: 0.8rem; color: #555; }
+        .cat-sub { flex: 1; cursor: pointer; padding: 8px 15px; font-size: 0.8rem; color: #555; transition: 0.2s; }
         .cat-sub.active { color: var(--primary); font-weight: bold; background: #f0edff; }
+        .cat-sub.drag-over { background: var(--secondary) !important; color: white !important; }
         
+        .tool-icon { font-size: 0.7rem; opacity: 0.3; cursor: pointer; padding: 0 5px; }
+        .tool-icon:hover { opacity: 1; color: var(--primary); }
+
         /* 메인 영역 */
         #main-content { flex: 1; padding: 20px; overflow-y: auto; }
-
-        /* 접이식 프롬프트 */
         .prompt-accordion { background: #fff; border: 1px solid #d1d9ff; border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
         .prompt-header { background: #eef2ff; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: var(--primary); font-size: 0.85rem; }
         .prompt-content { display: none; padding: 15px; border-top: 1px solid #d1d9ff; background: #fafbff; }
-        .copy-btn { background: var(--secondary); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
-        
-        /* 입력창 */
-        #smart-input-area { background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 5px solid var(--primary); }
-        textarea#raw-input { width: 100%; height: 80px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; margin-top: 10px; outline: none; resize: vertical; }
 
         /* 카드 그리드 */
         #card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
         .card { height: 480px; perspective: 1000px; cursor: grab; }
+        .card.dragging { opacity: 0.5; border: 2px dashed var(--primary); }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .card.flipped .card-inner { transform: rotateY(180deg); }
         .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; padding: 20px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         .front { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .back { background: white; transform: rotateY(180deg); overflow-y: auto; border: 1px solid #eee; }
-        
+
         .btn-util { width: 100%; padding: 10px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
-        .btn-clear { color: var(--danger); border-color: var(--danger); margin-top: 5px; }
-        .btn-clear:hover { background: var(--danger); color: white; }
+        .btn-clear { color: var(--danger); border-color: var(--danger); }
+        textarea#raw-input { width: 100%; height: 80px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; margin-top: 10px; outline: none; resize: vertical; }
 
         .section-title { font-size: 0.7rem; font-weight: bold; color: var(--primary); margin-top: 10px; border-left: 3px solid var(--primary); padding-left: 7px; display: flex; justify-content: space-between; }
         .mnemonic-section { color: var(--accent); font-weight: bold; border: 1px dashed var(--accent); padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.8rem; background: #fff5f5; }
         .syn-ant { font-size: 0.75rem; color: #444; margin-top: 5px; background: #f9f9f9; padding: 8px; border-radius: 6px; }
-        .vivid-box { background: #f0f2f5; padding: 10px; border-radius: 8px; font-style: italic; border-left: 4px solid var(--secondary); margin-top: 5px; font-size: 0.8rem; }
         .delete-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; z-index: 10; font-size: 10px; }
 
         @media (max-width: 768px) {
             body { flex-direction: column; overflow-y: auto; height: auto; }
-            #sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #ddd; }
-            #main-content { padding: 15px; }
-            #hierarchy-list-wrapper { max-height: 250px; }
+            #sidebar { width: 100%; height: auto; border-right: none; }
+            #hierarchy-list-wrapper { max-height: 300px; }
         }
     </style>
 </head>
@@ -88,7 +65,7 @@
             <h2 style="color: var(--primary); margin: 0 0 15px 0; font-size: 1.2rem;">📂 Vault</h2>
             <input type="text" id="search-bar" placeholder="단어 검색..." onkeyup="searchWords()">
             <button onclick="addNewCategory()" class="btn-util" style="background: var(--primary); color: white; border: none;">+ 새 카테고리 설계</button>
-            <div id="all-btn" class="cat-main active" onclick="renderCards('all')" style="border-radius:8px; margin-top:10px;">전체 보기</div>
+            <div id="all-btn" class="cat-main-row active" onclick="renderCards('all')" style="border-radius:8px; margin-top:10px; background:#f0edff;">✨ 전체 보기</div>
         </div>
 
         <div id="hierarchy-list-wrapper">
@@ -110,7 +87,7 @@
                 <span id="prompt-arrow">▼</span>
             </div>
             <div id="prompt-body" class="prompt-content">
-                <button class="copy-btn" onclick="copyPrompt()" style="margin-bottom:10px;">📋 복사하기</button>
+                <button onclick="copyPrompt()" class="btn-util" style="width:auto; padding:5px 15px;">📋 복사하기</button>
                 <div id="prompt-text" style="font-size:0.8rem; color:#444; background:#fff; padding:12px; border:1px solid #eee; line-height:1.6; white-space: pre-wrap;">**[주제]**에 관한 **[수준]**수준의 고급 영어 단어 **[개수]**개를 아래 양식으로 출력해줘 (*특정 단어 작성 원할 시 본 줄 삭제 후 입력)
 1. 소리 연상법은 한국어 발음을 이용해 매우 창의적이고 재미있게 만들 것.
 2. 상세 어원은 역사나 라틴어 유래를 포함해 깊이 있게 적을 것.
@@ -138,81 +115,59 @@
     </main>
 
     <script>
-        // JS 로직은 v4.6.0과 동일하되, 렌더링 위치만 맞춤
         let vocaData = JSON.parse(localStorage.getItem('voca_v4_pro')) || [];
         let draggedWordId = null;
         let currentFilter = 'all';
 
         function togglePrompt() {
             const body = document.getElementById('prompt-body');
-            const arrow = document.getElementById('prompt-arrow');
-            const isOpen = body.style.display === 'block';
-            body.style.display = isOpen ? 'none' : 'block';
-            arrow.innerText = isOpen ? '▼' : '▲';
+            body.style.display = body.style.display === 'block' ? 'none' : 'block';
         }
 
         function copyPrompt() {
-            const text = document.getElementById('prompt-text').innerText;
-            navigator.clipboard.writeText(text).then(() => alert("프롬프트 복사 완료!"));
+            navigator.clipboard.writeText(document.getElementById('prompt-text').innerText);
+            alert("복사되었습니다!");
         }
 
         function speak(text) {
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'en-US'; u.rate = 0.85;
+            u.lang = 'en-US'; u.rate = 0.8;
             window.speechSynthesis.speak(u);
         }
 
-        function clearAllData() {
-            if (confirm("🚨 정말로 모든 데이터를 삭제하시겠습니까?")) {
-                if (confirm("모든 단어와 카테고리가 초기화됩니다.")) {
-                    vocaData = [];
-                    saveAndRender();
-                    alert("초기화되었습니다.");
-                }
-            }
-        }
-
+        // 카테고리 생성: "대분류 > 중분류"
         function addNewCategory() {
-            const path = prompt("경로 입력 (예: 일상 > 날씨)");
+            const path = prompt("새 카테고리 경로 입력 (예: 경제 > 금융)");
             if (path && path.includes('>')) {
-                vocaData.push({ id: Date.now(), word: "(새 분류)", pron: "-", mean: "드래그로 채우기", topic: path.trim(), etym: "-", sound: "-", example: "-", translation: "-", syn: "-", ant: "-", isPlaceholder: true });
+                vocaData.push({ id: Date.now(), word: "(분류 생성용)", pron: "-", mean: "드래그로 단어를 채우세요", topic: path.trim(), etym: "-", sound: "-", example: "-", translation: "-", syn: "-", ant: "-", isPlaceholder: true });
                 saveAndRender();
+            } else {
+                alert("대분류 > 중분류 형식으로 입력해주세요.");
             }
         }
 
-        function parseAndAdd() {
-            const raw = document.getElementById('raw-input').value.trim();
-            if(!raw) return;
-            const blocks = raw.split(/\n\s*\n/);
-            blocks.forEach(block => {
-                const header = block.match(/([A-Za-z\s\-]+)\s*\[(.*?)\]\s*:\s*(.*)/);
-                if (header) {
-                    const getVal = (regex) => { 
-                        const m = block.match(regex); 
-                        return m ? m[1].trim() : "-"; 
-                    };
-                    vocaData.push({
-                        id: Date.now() + Math.random(),
-                        word: header[1].trim(), pron: header[2].trim(), mean: header[3].split('\n')[0].trim(),
-                        topic: getVal(/주제:\s*(.*)/),
-                        etym: getVal(/어원:\s*([\s\S]*?)(?=소리:|$)/),
-                        sound: getVal(/소리:\s*([\s\S]*?)(?=문장:|$)/),
-                        example: getVal(/문장:\s*([\s\S]*?)(?=번역:|$)/),
-                        translation: getVal(/번역:\s*([\s\S]*?)(?=유의어:|$)/),
-                        syn: getVal(/유의어:\s*(.*)/), ant: getVal(/반의어:\s*(.*)/)
-                    });
+        // 카테고리 이름 변경
+        function renameCategory(oldPath, isMain = false) {
+            const newName = prompt(`'${oldPath}'의 이름을 무엇으로 바꿀까요?`, oldPath);
+            if (!newName) return;
+            vocaData.forEach(d => {
+                if (isMain) {
+                    if (d.topic.startsWith(oldPath + " >") || d.topic === oldPath) {
+                        d.topic = d.topic.replace(oldPath, newName);
+                    }
+                } else {
+                    if (d.topic === oldPath) d.topic = newName;
                 }
             });
             saveAndRender();
-            document.getElementById('raw-input').value = '';
         }
 
-        function editSound(wordId, event) {
-            event.stopPropagation();
-            const item = vocaData.find(d => d.id == wordId);
-            const next = prompt("소리 연상법 수정:", item.sound);
-            if (next !== null) { item.sound = next; saveAndRender(); }
+        function deleteCategory(path) {
+            if(confirm(`'${path}' 내의 모든 단어를 삭제할까요?`)) {
+                vocaData = vocaData.filter(d => d.topic !== path && !d.topic.startsWith(path + " >"));
+                saveAndRender();
+            }
         }
 
         function renderHierarchy() {
@@ -224,18 +179,38 @@
                 if (!tree[parts[0]]) tree[parts[0]] = new Set();
                 if (parts[1]) tree[parts[0]].add(parts[1]);
             });
+
             for (const main in tree) {
                 const group = document.createElement('div');
                 group.className = 'cat-group';
-                group.innerHTML = `<div class="cat-main ${currentFilter === main ? 'active' : ''}"><span onclick="renderCards('${main}')" style="flex:1;">${main}</span><span onclick="toggleSub(this.parentElement)">▼</span></div>`;
+                
+                // 대분류 행
+                const mainRow = document.createElement('div');
+                mainRow.className = `cat-main-row ${currentFilter === main ? 'active' : ''}`;
+                mainRow.innerHTML = `
+                    <span onclick="toggleSub(this.parentElement.nextElementSibling)" style="flex:1;">📂 ${main}</span>
+                    <span class="tool-icon" onclick="renameCategory('${main}', true)">✏️</span>
+                `;
+                group.appendChild(mainRow);
+
+                // 중분류 리스트
                 const subList = document.createElement('div');
                 subList.className = 'cat-sub-list';
                 if (currentFilter.startsWith(main)) subList.style.display = 'block';
+
                 tree[main].forEach(sub => {
-                    const full = `${main} > ${sub}`;
+                    const fullPath = `${main} > ${sub}`;
                     const row = document.createElement('div');
                     row.className = 'cat-item-row';
-                    row.innerHTML = `<div class="cat-sub ${currentFilter === full ? 'active' : ''}" ondragover="event.preventDefault()" ondrop="handleDrop(event, '${full}')" onclick="renderCards('${full}')">- ${sub}</div><span style="font-size:0.6rem; padding-right:10px; cursor:pointer; opacity:0.3;" onclick="deleteCategory('${full}')">🗑️</span>`;
+                    row.innerHTML = `
+                        <div class="cat-sub ${currentFilter === fullPath ? 'active' : ''}" 
+                             ondragover="event.preventDefault(); this.classList.add('drag-over')" 
+                             ondragleave="this.classList.remove('drag-over')" 
+                             ondrop="handleDrop(event, '${fullPath}')" 
+                             onclick="renderCards('${fullPath}')">ㄴ ${sub}</div>
+                        <span class="tool-icon" onclick="renameCategory('${fullPath}')">✏️</span>
+                        <span class="tool-icon" onclick="deleteCategory('${fullPath}')">🗑️</span>
+                    `;
                     subList.appendChild(row);
                 });
                 group.appendChild(subList);
@@ -243,59 +218,103 @@
             }
         }
 
-        function deleteCategory(path) {
-            if(confirm(`'${path}' 내의 모든 단어를 삭제할까요?`)) {
-                vocaData = vocaData.filter(d => d.topic !== path && !d.topic.startsWith(path + " >"));
+        function toggleSub(el) { el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
+        
+        function handleDrop(e, targetPath) {
+            e.preventDefault();
+            const target = e.target;
+            target.classList.remove('drag-over');
+            const word = vocaData.find(d => d.id == draggedWordId);
+            if (word) {
+                word.topic = targetPath;
+                word.isPlaceholder = false; // 이동 시 플레이스홀더 해제
                 saveAndRender();
             }
         }
 
-        function toggleSub(el) { const l = el.nextElementSibling; l.style.display = l.style.display === 'block' ? 'none' : 'block'; }
-        function handleDrop(e, path) { e.preventDefault(); const word = vocaData.find(d => d.id == draggedWordId); if (word) { word.topic = path; saveAndRender(); } }
+        function parseAndAdd() {
+            const raw = document.getElementById('raw-input').value.trim();
+            if(!raw) return;
+            const blocks = raw.split(/\n\s*\n/);
+            blocks.forEach(block => {
+                const header = block.match(/([A-Za-z\s\-]+)\s*\[(.*?)\]\s*:\s*(.*)/);
+                if (header) {
+                    const getVal = (regex) => { const m = block.match(regex); return m ? m[1].trim() : "-"; };
+                    vocaData.push({
+                        id: Date.now() + Math.random(),
+                        word: header[1].trim(), pron: header[2].trim(), mean: header[3].split('\n')[0].trim(),
+                        topic: getVal(/주제:\s*(.*)/), etym: getVal(/어원:\s*([\s\S]*?)(?=소리:|$)/),
+                        sound: getVal(/소리:\s*([\s\S]*?)(?=문장:|$)/), example: getVal(/문장:\s*([\s\S]*?)(?=번역:|$)/),
+                        translation: getVal(/번역:\s*([\s\S]*?)(?=유의어:|$)/), syn: getVal(/유의어:\s*(.*)/), ant: getVal(/반의어:\s*(.*)/)
+                    });
+                }
+            });
+            saveAndRender();
+            document.getElementById('raw-input').value = '';
+        }
 
         function renderCards(filter = 'all', query = '') {
             currentFilter = filter;
             const grid = document.getElementById('card-grid');
             grid.innerHTML = '';
-            document.getElementById('all-btn').classList.toggle('active', filter === 'all');
             renderHierarchy();
+            
             let filtered = vocaData;
-            if (filter !== 'all') filtered = vocaData.filter(d => d.topic === filter || d.topic.startsWith(filter + " >"));
+            if (filter !== 'all') {
+                filtered = vocaData.filter(d => d.topic === filter || d.topic.startsWith(filter + " >"));
+            }
             if(query) filtered = filtered.filter(d => d.word.toLowerCase().includes(query));
+
             filtered.forEach(card => {
                 const el = document.createElement('div');
                 el.className = 'card';
-                el.draggable = !card.isPlaceholder;
-                el.ondragstart = () => { draggedWordId = card.id; };
+                el.draggable = true;
+                el.ondragstart = () => { draggedWordId = card.id; el.classList.add('dragging'); };
+                el.ondragend = () => el.classList.remove('dragging');
                 el.innerHTML = `
                     <div class="card-inner">
                         <button class="delete-btn" onclick="deleteCard(${card.id}, event)">✕</button>
                         <div class="front" onclick="this.parentElement.parentElement.classList.toggle('flipped'); speak('${card.word}')">
                             <div style="font-size:0.65rem; opacity:0.7;">${card.topic}</div>
                             <h2 style="font-size:1.6rem; margin:10px 0;">${card.word}</h2>
-                            <p style="font-size:0.9rem;">${card.pron} 🔊</p>
-                            <div style="font-weight:bold; background:rgba(255,255,255,0.2); padding:8px 15px; border-radius:20px; font-size:0.95rem;">${card.mean}</div>
+                            <p>${card.pron} 🔊</p>
+                            <div style="font-weight:bold; background:rgba(255,255,255,0.2); padding:8px 15px; border-radius:20px;">${card.mean}</div>
                         </div>
                         <div class="back" onclick="this.parentElement.parentElement.classList.toggle('flipped')">
                             <div class="section-title">Etymology</div><div style="font-size:0.75rem; line-height:1.4;">${card.etym}</div>
-                            <div class="section-title">Mnemonic <span style="font-size:0.65rem; color:var(--secondary); cursor:pointer;" onclick="editSound(${card.id}, event)">✏️ 수정</span></div>
+                            <div class="section-title">Mnemonic <span style="font-size:0.65rem; color:var(--secondary);" onclick="editSound(${card.id}, event)">✏️ 수정</span></div>
                             <div class="mnemonic-section">${card.sound}</div>
-                            <div class="section-title">Synonyms & Antonyms</div>
+                            <div class="section-title">Thesaurus</div>
                             <div class="syn-ant"><b>Syn:</b> ${card.syn} / <b>Ant:</b> ${card.ant}</div>
                             <div class="section-title">Example</div>
                             <div class="vivid-box">${card.example}</div>
-                            <div style="font-size:0.7rem; color:#888; margin-top:3px;">${card.translation}</div>
+                            <div style="font-size:0.7rem; color:#888;">${card.translation}</div>
                         </div>
                     </div>`;
                 grid.prepend(el);
             });
         }
 
+        function editSound(id, e) {
+            e.stopPropagation();
+            const item = vocaData.find(d => d.id == id);
+            const next = prompt("수정:", item.sound);
+            if(next !== null) { item.sound = next; saveAndRender(); }
+        }
+
         function saveAndRender() { localStorage.setItem('voca_v4_pro', JSON.stringify(vocaData)); renderCards(currentFilter); }
         function searchWords() { renderCards(currentFilter, document.getElementById('search-bar').value.toLowerCase()); }
         function deleteCard(id, e) { e.stopPropagation(); if(confirm("삭제?")) { vocaData = vocaData.filter(d => d.id !== id); saveAndRender(); } }
-        function exportData() { const blob = new Blob([JSON.stringify(vocaData)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `vocab_backup.json`; a.click(); }
-        function importData(e) { const reader = new FileReader(); reader.onload = (ev) => { vocaData = JSON.parse(ev.target.result); saveAndRender(); }; reader.readAsText(e.target.files[0]); }
+        function exportData() { 
+            const blob = new Blob([JSON.stringify(vocaData)], {type: "application/json"});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "vocab_full_backup.json"; a.click();
+        }
+        function importData(e) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { vocaData = JSON.parse(ev.target.result); saveAndRender(); };
+            reader.readAsText(e.target.files[0]);
+        }
+        function clearAllData() { if(confirm("전체 삭제?")) { vocaData = []; saveAndRender(); } }
         renderCards();
     </script>
 </body>
