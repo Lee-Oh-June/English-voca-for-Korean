@@ -3,16 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivid Vocab Vault - v4.6.0 Mobile Ready</title>
+    <title>Vivid Vocab Vault - v4.6.1 Fixed Bottom</title>
     <style>
         :root { --primary: #764ba2; --secondary: #667eea; --bg: #f8f9fa; --accent: #e74c3c; --danger: #ff4757; }
         body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); overflow: hidden; }
         
-        /* 사이드바 반응형 레이아웃 */
-        #sidebar { width: 260px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; transition: 0.3s; }
+        /* 사이드바 고정 구조 */
+        #sidebar { 
+            width: 260px; background: #fff; border-right: 1px solid #ddd; 
+            display: flex; flex-direction: column; flex-shrink: 0; 
+            height: 100vh; /* 전체 높이 고정 */
+        }
         
+        .sidebar-header { padding: 20px 20px 10px 20px; }
+        
+        /* 카테고리 리스트 영역만 스크롤 */
+        #hierarchy-list-wrapper { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 0 20px;
+        }
+        /* 스크롤바 커스텀 */
+        #hierarchy-list-wrapper::-webkit-scrollbar { width: 5px; }
+        #hierarchy-list-wrapper::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+
+        .sidebar-footer { 
+            padding: 15px 20px; 
+            border-top: 1px solid #eee; 
+            background: #fdfdfd; 
+        }
+
         #search-bar { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; outline: none; }
-        
         .cat-group { margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #f0f0f0; }
         .cat-main { cursor: pointer; padding: 12px; font-weight: bold; background: #fdfdfd; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
         .cat-main.active { background: #f0edff; color: var(--primary); border-left: 4px solid var(--primary); }
@@ -34,7 +55,7 @@
         #smart-input-area { background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 5px solid var(--primary); }
         textarea#raw-input { width: 100%; height: 80px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; margin-top: 10px; outline: none; resize: vertical; }
 
-        /* 카드 그리드 반응형 */
+        /* 카드 그리드 */
         #card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
         .card { height: 480px; perspective: 1000px; cursor: grab; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
@@ -43,38 +64,38 @@
         .front { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .back { background: white; transform: rotateY(180deg); overflow-y: auto; border: 1px solid #eee; }
         
-        /* 버튼 스타일 */
         .btn-util { width: 100%; padding: 10px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
-        .btn-clear { color: var(--danger); border-color: var(--danger); margin-top: 10px; }
+        .btn-clear { color: var(--danger); border-color: var(--danger); margin-top: 5px; }
         .btn-clear:hover { background: var(--danger); color: white; }
 
-        /* 섹션 타이틀 */
         .section-title { font-size: 0.7rem; font-weight: bold; color: var(--primary); margin-top: 10px; border-left: 3px solid var(--primary); padding-left: 7px; display: flex; justify-content: space-between; }
         .mnemonic-section { color: var(--accent); font-weight: bold; border: 1px dashed var(--accent); padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.8rem; background: #fff5f5; }
         .syn-ant { font-size: 0.75rem; color: #444; margin-top: 5px; background: #f9f9f9; padding: 8px; border-radius: 6px; }
         .vivid-box { background: #f0f2f5; padding: 10px; border-radius: 8px; font-style: italic; border-left: 4px solid var(--secondary); margin-top: 5px; font-size: 0.8rem; }
         .delete-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; z-index: 10; font-size: 10px; }
 
-        /* --- 모바일 대응 미디어 쿼리 --- */
         @media (max-width: 768px) {
             body { flex-direction: column; overflow-y: auto; height: auto; }
-            #sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #ddd; padding: 15px; }
+            #sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #ddd; }
             #main-content { padding: 15px; }
-            .card { height: 450px; }
-            #hierarchy-list { max-height: 200px; overflow-y: auto; }
+            #hierarchy-list-wrapper { max-height: 250px; }
         }
     </style>
 </head>
 <body>
     <nav id="sidebar">
-        <h2 style="color: var(--primary); margin: 0 0 15px 0; font-size: 1.2rem;">📂 Vault</h2>
-        <input type="text" id="search-bar" placeholder="단어 검색..." onkeyup="searchWords()">
-        <button onclick="addNewCategory()" class="btn-util" style="background: var(--primary); color: white; border: none;">+ 새 카테고리 설계</button>
+        <div class="sidebar-header">
+            <h2 style="color: var(--primary); margin: 0 0 15px 0; font-size: 1.2rem;">📂 Vault</h2>
+            <input type="text" id="search-bar" placeholder="단어 검색..." onkeyup="searchWords()">
+            <button onclick="addNewCategory()" class="btn-util" style="background: var(--primary); color: white; border: none;">+ 새 카테고리 설계</button>
+            <div id="all-btn" class="cat-main active" onclick="renderCards('all')" style="border-radius:8px; margin-top:10px;">전체 보기</div>
+        </div>
+
+        <div id="hierarchy-list-wrapper">
+            <div id="hierarchy-list"></div>
+        </div>
         
-        <div id="all-btn" class="cat-main active" onclick="renderCards('all')" style="border-radius:8px; margin-bottom:10px;">전체 보기</div>
-        <div id="hierarchy-list" style="flex-grow: 1;"></div>
-        
-        <div style="margin-top:20px; padding-top:10px; border-top:1px solid #eee;">
+        <div class="sidebar-footer">
             <button onclick="exportData()" class="btn-util">💾 데이터 백업</button>
             <button onclick="document.getElementById('import-file').click()" class="btn-util">📂 데이터 복구</button>
             <button onclick="clearAllData()" class="btn-util btn-clear">🗑️ 전체 데이터 삭제</button>
@@ -117,6 +138,7 @@
     </main>
 
     <script>
+        // JS 로직은 v4.6.0과 동일하되, 렌더링 위치만 맞춤
         let vocaData = JSON.parse(localStorage.getItem('voca_v4_pro')) || [];
         let draggedWordId = null;
         let currentFilter = 'all';
@@ -141,10 +163,9 @@
             window.speechSynthesis.speak(u);
         }
 
-        // 전체 삭제 기능
         function clearAllData() {
-            if (confirm("🚨 정말로 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) {
-                if (confirm("마지막 확인입니다. 모든 단어와 카테고리가 사라집니다.")) {
+            if (confirm("🚨 정말로 모든 데이터를 삭제하시겠습니까?")) {
+                if (confirm("모든 단어와 카테고리가 초기화됩니다.")) {
                     vocaData = [];
                     saveAndRender();
                     alert("초기화되었습니다.");
